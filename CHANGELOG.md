@@ -1,167 +1,197 @@
-## ActiveRecordReputationSystem 2.0.1 ##
+# 3.0.1 (November 27, 2014)
 
-* Print out future deprecation warning for methods `with_reputation` and `with_normalized_reputation`.
+  * Remove `protected_attributes` to fix a Rails 4 compatibility.
 
-* Fix a finder related bug.
+# 3.0.0 (October 7, 2014)
 
-## ActiveRecordReputationSystem 2.0.0 ##
+  * Add ability to set custom aggregation functions. (Caio Almeida)
 
-* Deprecate `init_value` option.
+  * Add serialized data field to evaluation and reputation models. (Caio Almeida)
 
-* Fix a average computation bug associated with deletes.
+  * Make ActiveRecord 4 compatible.
 
-* `delete_evaluation` returns false on failure, instead of nil.
+  * Drop Rails 3 and Ruby 1.8 support.
 
-* Add `has_evaluation?` method.
+# 2.0.2 (December 1, 2012)
 
-* Add auto-require `reputation_system`.
+  * Fix a bug associated with `add_or_update_evaluation` method that happens when
+    source uses STI.
 
-* Add `evaluators_for` method.
+# 2.0.1 (October 5, 2012)
 
-* Deprecate `reputation_value_for` and `normalized_reputation_value_for` methods.
+  * Print out future deprecation warning for methods `with_reputation` and
+    `with_normalized_reputation`.
 
-* Add `evaluations` association for all evaluation targets.
+  * Fix a finder related bug.
 
-* Set `:sum` as default for `aggregated_by` option.
+# 2.0.0 (October 5, 2012)
 
-* Rename models - RSReputation to ReputationSystem::Reputation, RSEvaluation to ReputationSystem::Evaluation and RSReputationMessage to ReputationSystem::ReputationMessage
+  * Deprecate `init_value` option.
 
-## ActiveRecordReputationSystem 1.5.1 ##
+  * Fix a average computation bug associated with deletes.
 
-* Fix a bug that raises exception when associations related reputation propageted has not been initialized at that time.
+  * `delete_evaluation` returns false on failure, instead of nil.
 
-## ActiveRecordReputationSystem 1.5.0 ##
+  * Add `has_evaluation?` method.
 
-* Add a support for STI.
+  * Add auto-require `reputation_system`.
 
-* Add `reputation_for` and `normalized_reputation_for` methods that are shorten name of `reputation_value_for` and `normalized_reputation_value_for` methods.
+  * Add `evaluators_for` method.
 
-## ActiveRecordReputationSystem 1.4.0 ##
+  * Deprecate `reputation_value_for` and `normalized_reputation_value_for`
+    methods.
 
-* Add `with_normalized_reputation` and `with_normalized_reputation_only`.
+  * Add `evaluations` association for all evaluation targets.
 
-* Add `with_reputation` and `with_reputation_only` methods.
+  * Set `:sum` as default for `aggregated_by` option.
 
-## ActiveRecordReputationSystem 1.3.4 ##
+  * Rename models - RSReputation to ReputationSystem::Reputation, RSEvaluation to
+    ReputationSystem::Evaluation and RSReputationMessage to
+    ReputationSystem::ReputationMessage
 
-* Fix name of a migration class again.
+# 1.5.1 (October 4, 2012)
 
-## ActiveRecordReputationSystem 1.3.3 ##
+  * Fix a bug that raises exception when associations related reputation
+    propageted has not been initialized at that time.
 
-* Fix name of a migration class.
+# 1.5.0 (September 15, 2012)
 
-## ActiveRecordReputationSystem 1.3.2 ##
+  * Add a support for STI.
 
-* Add migration files.
+  * Add `reputation_for` and `normalized_reputation_for` methods that are shorten
+    name of `reputation_value_for` and `normalized_reputation_value_for` methods.
 
-## ActiveRecordReputationSystem 1.3.1 ##
+# 1.4.0 (September 10, 2012)
 
-* Make index unique.
+  * Add `with_normalized_reputation` and `with_normalized_reputation_only`.
 
-## ActiveRecordReputationSystem 1.3.0 ##
+  * Add `with_reputation` and `with_reputation_only` methods.
 
-* Add `evaluated_by method`.
+# 1.3.4 (August 9, 2012)
 
-* Make evaluation methods return true on success.
+  * Fix name of a migration class again.
 
-## ActiveRecordReputationSystem 1.2.1 ##
+# 1.3.3 (August 8, 2012)
 
-* Fix index names to be able to `db:rollback` the migrations.
+  * Fix name of a migration class.
 
-## ActiveRecordReputationSystem 1.2.0 ##
+# 1.3.2 (August 8, 2012)
 
-* Fix race conditions with uniqueness validations.
+  * Add migration files.
 
-## ActiveRecordReputationSystem 1.1.0 ##
+# 1.3.1 (August 8, 2012)
 
-* Add `increase_evaluation` and `decrease_evaluation` methods.
+  * Make index unique.
 
-* Fix `add_or_update_evaluation` bug when using scope.
+# 1.3.0 (August 1, 2012)
 
-* Fix README bugs.
+  * Add `evaluated_by method`.
 
-## ActiveRecordReputationSystem 1.0.0 ##
+  * Make evaluation methods return true on success.
 
-* Open sourced to the world!
+# 1.2.1 (July 14, 2012)
 
-* Sanitize all sql statements in query.rb.
+  * Fix index names to be able to `db:rollback` the migrations. (Amr Tamimi)
 
-* Add validations for reputation messages.
+# 1.2.0 (June 12, 2012)
 
-* Rename spec gem.
+  * Fix race conditions with uniqueness validations.
 
-* Overwrite existing reputation definitions instead of raising exceptions.
+# 1.1.0 (May 22, 2012)
 
-* Rename `reputation_system` to `reputation_system_active_record`.
+  * Add `increase_evaluation` and `decrease_evaluation` methods.
 
-* Support initial value.
+  * Fix `add_or_update_evaluation` bug when using scope.
 
-* Support for default `source_of` attribute.
+  * Fix README bugs. (Eli Fox-Epstein)
 
-* Change gem name from `reputation-system` to `reputation_system`.
+# 1.0.0 (May 17, 2012)
 
-* No more active record models export upon reputation system generation.
+  * Open sourced to the world!
 
-* Remove rails init files.
+  * Sanitize all sql statements in query.rb.
 
-* Major refactoring.
+  * Add validations for reputation messages.
 
-* Rename `normalize` to `active`.
+  * Rename spec gem.
 
-* Fix Query bug.
+  * Overwrite existing reputation definitions instead of raising exceptions.
 
-* Remove `ExternalSource` support.
+  * Rename `reputation_system` to `reputation_system_active_record`.
 
-* Add `rank_for` method.
+  * Support initial value.
 
-* Add count query interface.
+  * Support for default `source_of` attribute.
 
-* Organize Rakefile more nicely.
+  * Change gem name from `reputation-system` to `reputation_system`.
 
-* Organize the gem more nicely.
+  * No more active record models export upon reputation system generation.
 
-* Add non strict version of `delete_evaluation` method.
+  * Remove rails init files.
 
-* Fix rails 3.2 issue
+  * Major refactoring.
 
-* Stop using transaction.
+  * Rename `normalize` to `active`.
 
-* Really make ActiveRecord 3 compatible
+  * Fix Query bug.
 
-* Make ActiveRecord 3 compatible
+  * Remove `ExternalSource` support.
 
-* Add a method to check if a reputation is included for normalization.
+  * Add `rank_for` method.
 
-* Improve Generator.
+  * Add count query interface.
 
-* Allow reputation to be inactive so that it will not count into the normalized value.
+  * Organize Rakefile more nicely.
 
-* Destroy dependent reputations and reputation messages.
+  * Organize the gem more nicely.
 
-* Add method to output sql statement for querying.
+  * Add non strict version of `delete_evaluation` method.
 
-* Add normalized value support for querying.
+  * Fix rails 3.2 issue
 
-* Add scope support for querying.
+  * Stop using transaction.
 
-* Removing dependencies.
+  * Really make ActiveRecord 3 compatible
 
-* Fix `instance_exec` error.
+  * Make ActiveRecord 3 compatible
 
-* Add query interface.
+  * Add a method to check if a reputation is included for normalization.
 
-* Use transaction for better performance.
+  * Improve Generator.
 
-* Fix a bug related to `add_or_update_evaluation`.
+  * Allow reputation to be inactive so that it will not count into the normalized
+    value.
 
-* Add normalized reputation value accessor.
+  * Destroy dependent reputations and reputation messages.
 
-* Rename all models for organization and for a patch to deal with bug in class caching.
+  * Add method to output sql statement for querying.
 
-* Add default value (:self) for `:of` attributes. Fix scope bug. Add support for non-array `:source_of` value.
+  * Add normalized value support for querying.
 
-* Add support for scoping reputations.
+  * Add scope support for querying.
 
-* Major redesign of the framework. Now supports "Multiple level" of reputation relationship.
+  * Removing dependencies.
 
-* First Iteration with minimum capability. Only supporting "One level" of reputation relationship.
+  * Fix `instance_exec` error.
+
+  * Add query interface.
+
+  * Use transaction for better performance.
+
+  * Fix a bug related to `add_or_update_evaluation`.
+
+  * Add normalized reputation value accessor.
+
+  * Rename all models for organization and for a patch to deal with bug in class
+    caching.
+
+  * Add default value (:self) for `:of` attributes. Fix scope bug. Add support for
+    non-array `:source_of` value.
+
+  * Add support for scoping reputations.
+
+  * Major redesign of the framework. Now supports "Multiple level" of reputation
+    relationship.
+
+  * First Iteration with minimum capability. Only supporting "One level" of
+    reputation relationship.

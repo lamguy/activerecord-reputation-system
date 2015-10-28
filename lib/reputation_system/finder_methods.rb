@@ -27,7 +27,7 @@ module FinderMethods
         options[:select] = build_select_statement(table_name, reputation_name, options[:select])
         options[:joins] = build_join_statement(table_name, name, srn, options[:joins])
         options[:conditions] = build_condition_statement(reputation_name, options[:conditions])
-        find(find_scope, options)
+        joins(options[:joins]).select(options[:select]).where(options[:conditions]).send(find_scope)
       end
 
       def count_with_reputation(*args)
@@ -35,7 +35,7 @@ module FinderMethods
         options[:joins] = build_join_statement(table_name, name, srn, options[:joins])
         options[:conditions] = build_condition_statement(reputation_name, options[:conditions])
         options[:conditions][0].gsub!(reputation_name.to_s, "COALESCE(rs_reputations.value, 0)")
-        count(find_scope, options)
+        joins(options[:joins]).select(options[:select]).where(options[:conditions]).send(find_scope).count
       end
 
       def find_with_normalized_reputation(*args)
@@ -43,7 +43,7 @@ module FinderMethods
         options[:select] = build_select_statement(table_name, reputation_name, options[:select], srn, true)
         options[:joins] = build_join_statement(table_name, name, srn, options[:joins])
         options[:conditions] = build_condition_statement(reputation_name, options[:conditions], srn, true)
-        find(find_scope, options)
+        joins(options[:joins]).select(options[:select]).where(options[:conditions]).send(find_scope)
       end
 
       def find_with_reputation_sql(*args)
@@ -53,8 +53,10 @@ module FinderMethods
         options[:conditions] = build_condition_statement(reputation_name, options[:conditions])
         if respond_to?(:construct_finder_sql, true)
           construct_finder_sql(options)
-        else
+        elsif respond_to?(:construct_finder_arel, true)
           construct_finder_arel(options).to_sql
+        else
+          joins(options[:joins]).select(options[:select]).where(options[:conditions]).send(find_scope).to_sql
         end
       end
 

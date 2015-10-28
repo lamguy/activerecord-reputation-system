@@ -1,4 +1,4 @@
-## ActiveRecord Reputation System  [![Build Status](https://secure.travis-ci.org/twitter/activerecord-reputation-system.png)](http://travis-ci.org/twitter/activerecord-reputation-system) [![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/twitter/activerecord-reputation-system)
+## ActiveRecord Reputation System  [![Build Status](https://travis-ci.org/twitter/activerecord-reputation-system.svg?branch=master)](https://travis-ci.org/twitter/activerecord-reputation-system) [![Code Climate](https://codeclimate.com/github/twitter/activerecord-reputation-system/badges/gpa.svg)](https://codeclimate.com/github/twitter/activerecord-reputation-system)
 
 The Active Record Reputation System helps you build the reputation system for your Rails application. It allows Active Record to have reputations and get evaluated by other records. This gem allows you to:
 * define reputations in easily readable way.
@@ -8,6 +8,8 @@ The Active Record Reputation System helps you build the reputation system for yo
 ## Installation
 
 * If you are updating to version 2 from version older, you should check out [migration guide](https://github.com/twitter/activerecord-reputation-system/wiki/Migrate-to-Version-2.0).
+
+* **For Rails 3 use versions 2.0.2 and older.**
 
 Add to Gemfile:
 
@@ -91,6 +93,38 @@ You can get target records that have been evaluated by a given source record:
 Question.evaluated_by(:votes, @user) #=> [@question]
 ```
 
+To use a custom aggregation function you need to provide the name of the method
+on the `:aggregated_by option`, and implement this method on the model.
+On the example below, our aggregation function sums all values and multiply by ten:
+```ruby
+class Answer < ActiveRecord::Base
+  belongs_to :author, :class_name => 'User'
+  belongs_to :question
+
+  has_reputation :custom_rating,
+    :source => :user,
+    :aggregated_by => :custom_aggregation
+
+  def custom_aggregation(*args)
+    rep, source, weight = args[0..2]
+
+    # Ruby doesn't support method overloading, so let's handle parameters on a condition
+
+    # For a new source, these are the input parameters:
+    # rep, source, weight
+    if args.length == 3
+      rep.value + weight * source.value * 10
+
+    # For an updated source, these are the input parameters:
+    # rep, source, weight, oldValue, newSize
+    elsif args.length == 5
+      oldValue, newSize = args[3..4]
+      rep.value + (source.value - oldValue) * 10
+    end
+  end
+end
+```
+
 ## Documentation
 
 Please refer [Wiki](https://github.com/twitter/activerecord-reputation-system/wiki) for available APIs and more information.
@@ -100,12 +134,6 @@ Please refer [Wiki](https://github.com/twitter/activerecord-reputation-system/wi
 Katsuya Noguchi
 * [http://twitter.com/kn](http://twitter.com/kn)
 * [http://github.com/kn](http://github.com/kn)
-
-## Contributors
-
-1. [NARKOZ (Nihad Abbasov)](https://github.com/NARKOZ) - 4 commits
-2. [elitheeli (Eli Fox-Epstein)](https://github.com/elitheeli) - 1 commit
-3. [amrnt (Amr Tamimi)](https://github.com/amrnt) - 1 commit
 
 ## Related Links
 

@@ -43,6 +43,7 @@ ActiveRecord::Schema.define do
     t.references  :source, :polymorphic => true
     t.references  :target, :polymorphic => true
     t.float       :value, :default => 0
+    t.text        :data
     t.timestamps
   end
 
@@ -56,6 +57,7 @@ ActiveRecord::Schema.define do
     t.string      :aggregated_by
     t.references  :target, :polymorphic => true
     t.boolean     :active, :default => true
+    t.text        :data
     t.timestamps
   end
 
@@ -108,6 +110,11 @@ ActiveRecord::Schema.define do
     t.string :type
     t.timestamps
   end
+
+  create_table :posts do |t|
+    t.string :name
+    t.timestamps
+  end
 end
 
 class User < ActiveRecord::Base
@@ -127,6 +134,14 @@ class User < ActiveRecord::Base
   has_reputation :answer_karma,
     :source => { :reputation => :weighted_avg_rating, :of => :answers },
     :aggregated_by => :average
+
+  has_reputation :custom_rating,
+    :source => { :reputation => :custom_rating, :of => :answers },
+    :aggregated_by => :custom_rating
+
+  def custom_process
+    123
+  end
 end
 
 class Question < ActiveRecord::Base
@@ -156,12 +171,29 @@ class Answer < ActiveRecord::Base
   has_reputation :avg_rating,
     :source => :user,
     :aggregated_by => :average
+
+  has_reputation :custom_rating,
+    :source => :user,
+    :aggregated_by => :custom_aggregation,
+    :source_of => { :reputation => :custom_rating, :of => :author }
+
+  def custom_aggregation(*args)
+    rep, source, weight = args[0..2]
+    # rep, source, weight
+    if args.length === 3
+      rep.value + weight * source.value * 10
+    # rep, source, weight, oldValue, newSize
+    elsif args.length === 5
+      oldValue, newSize = args[3..4]
+      rep.value + (source.value - oldValue) * 10
+    end
+  end
 end
 
 class Phrase < ActiveRecord::Base
   has_many :translations do
     def for(locale)
-      self.find_all_by_locale(locale.to_s)
+      self.where(:locale => locale.to_s).to_a
     end
   end
 
@@ -177,6 +209,11 @@ class Phrase < ActiveRecord::Base
     :scopes => [:ja, :fr, :de],
     :source_of => { :reputation => :maturity_all, :of => :self, :defined_for_scope => [:ja, :fr] }
 
+  has_reputation :maturity_of_all_translations,
+    :source => { :reputation => :votes, :of => :translations },
+    :aggregated_by => :sum,
+    :scopes => [:ja, :fr, :de]
+
   has_reputation :difficulty_with_scope,
     :source => :user,
     :aggregated_by => :average,
@@ -190,8 +227,13 @@ class Translation < ActiveRecord::Base
   has_reputation :votes,
     :source => :user,
     :aggregated_by => :sum,
-    :source_of => { :reputation => :maturity, :of => :phrase, :scope => :locale}
+    :source_of => [
+      { :reputation => :maturity, :of => :phrase, :scope => :locale},
+      { :reputation => :maturity_of_all_translations, :of => :phrase, :scope => :locale}
+    ]
 end
+
+# For STI Specs
 
 class Person < ActiveRecord::Base
   has_reputation :leadership,
@@ -203,4 +245,11 @@ class Programmer < Person
 end
 
 class Designer < Person
+end
+
+class Post < ActiveRecord::Base
+  belongs_to :person
+
+  has_reputation :votes,
+    :source => :person
 end

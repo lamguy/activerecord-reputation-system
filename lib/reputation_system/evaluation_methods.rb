@@ -25,7 +25,7 @@ module ReputationSystem
         options[:select] ||= sanitize_sql_array(["%s.*", self.table_name])
         options[:joins] = sanitize_sql_array(["JOIN rs_evaluations ON %s.id = rs_evaluations.target_id AND rs_evaluations.target_type = ? AND rs_evaluations.reputation_name = ? AND rs_evaluations.source_id = ? AND rs_evaluations.source_type = ?", self.name, srn.to_s, source.id, source_type])
         options[:joins] = sanitize_sql_array([options[:joins], self.table_name])
-        find(:all, options) 
+        joins(options[:joins]).select(options[:select])
       end
     end
 
@@ -39,6 +39,10 @@ module ReputationSystem
       !!ReputationSystem::Evaluation.find_by_reputation_name_and_source_and_target(srn, source, self)
     end
 
+    def evaluation_by(reputation_name, source, *args)
+      srn, evaluation = find_srn_and_evaluation(reputation_name, source, args.first)
+      evaluation ? evaluation.value : nil
+    end
 
     def evaluators_for(reputation_name, *args)
       scope = args.first
@@ -70,6 +74,15 @@ module ReputationSystem
       srn, evaluation = find_srn_and_evaluation(reputation_name, source, args.first)
       if ReputationSystem::Evaluation.exists? :reputation_name => srn, :source_id => source.id, :source_type => source.class.name, :target_id => self.id, :target_type => self.class.name
         self.update_evaluation(reputation_name, value, source, *args)
+      else
+        self.add_evaluation(reputation_name, value, source, *args)
+      end
+    end
+
+    def add_or_delete_evaluation(reputation_name, value, source, *args)
+      srn, evaluation = find_srn_and_evaluation(reputation_name, source, args.first)
+      if ReputationSystem::Evaluation.exists? :reputation_name => srn, :source_id => source.id, :source_type => source.class.name, :target_id => self.id, :target_type => self.class.name
+        !!delete_evaluation_without_validation(srn, evaluation)
       else
         self.add_evaluation(reputation_name, value, source, *args)
       end

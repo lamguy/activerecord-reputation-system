@@ -26,14 +26,12 @@ module ReputationSystem
     end
     has_many :sent_messages, :as => :sender, :class_name => 'ReputationSystem::ReputationMessage', :dependent => :destroy
 
-    attr_accessible :reputation_name, :value, :aggregated_by, :active, :target, :target_id, :target_type, :received_messages
-
     before_validation :set_target_type_for_sti
     before_save :change_zero_value_in_case_of_product_process
 
-    VALID_PROCESSES = ['sum', 'average', 'product']
-    validates_inclusion_of :aggregated_by, :in => VALID_PROCESSES, :message => "Value chosen for aggregated_by is not valid process"
     validates_uniqueness_of :reputation_name, :scope => [:target_id, :target_type]
+
+    serialize :data, Hash
 
     def self.find_by_reputation_name_and_target(reputation_name, target)
       target_type = get_target_type_for_sti(target, reputation_name)
@@ -66,7 +64,11 @@ module ReputationSystem
       when :product
         rep.value *= (newValue * weight)
       else
-        raise ArgumentError, "#{process} process is not supported yet"
+        if source.target.respond_to?(process)
+          rep.value = source.target.send(process, rep, source, weight)
+        else
+          raise ArgumentError, "#{process} process is not supported yet"
+        end
       end
       save_succeeded = rep.save
       ReputationSystem::ReputationMessage.add_reputation_message_if_not_exist(source, rep)
@@ -90,7 +92,11 @@ module ReputationSystem
         when :product
           rep.value = (rep.value * newValue) / oldValue
         else
-          raise ArgumentError, "#{process} process is not supported yet"
+          if source.target.respond_to?(process)
+            rep.value = source.target.send(process, rep, source, weight, oldValue, newSize)
+          else
+            raise ArgumentError, "#{process} process is not supported yet"
+          end
         end
       end
       save_succeeded = rep.save
@@ -175,13 +181,11 @@ module ReputationSystem
       end
 
       def self.max(reputation_name, target_type)
-        ReputationSystem::Reputation.maximum(:value,
-                             :conditions => {:reputation_name => reputation_name.to_s, :target_type => target_type, :active => true})
+        ReputationSystem::Reputation.where(:reputation_name => reputation_name.to_s, :target_type => target_type, :active => true).maximum(:value)
       end
 
       def self.min(reputation_name, target_type)
-        ReputationSystem::Reputation.minimum(:value,
-                             :conditions => {:reputation_name => reputation_name.to_s, :target_type => target_type, :active => true})
+        ReputationSystem::Reputation.where(:reputation_name => reputation_name.to_s, :target_type => target_type, :active => true).minimum(:value)
       end
 
       def self.get_target_type_for_sti(target, reputation_name)
